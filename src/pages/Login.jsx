@@ -55,7 +55,7 @@ function Login() {
 
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      navigate("/home");
+      navigate("/");
 
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
