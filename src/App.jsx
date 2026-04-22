@@ -18,11 +18,13 @@ function App() {
       {/* 🌐 GLOBAL TOAST CONFIG (ONE TIME ONLY) */}
       <ToastContainer
         position="top-right"
-        autoClose={2000}   // 👈 default 2 sec for all toasts
+        autoClose={2000}
         hideProgressBar={false}
-        pauseOnHover={false}
+        newestOnTop={false}
         closeOnClick
+        pauseOnHover
         draggable
+        theme="dark"
       />
 
       <Routes>

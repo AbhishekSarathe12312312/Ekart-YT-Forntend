@@ -16,23 +16,13 @@ const Profile = () => {
     profileImage: null,
   });
 
-  // ================= FETCH USER =================
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const storedUser = JSON.parse(localStorage.getItem("user"));
-
-        if (!storedUser) {
-          toast.error("User not found in localStorage");
-          return;
-        }
-
         const userId = storedUser?._id || storedUser?.id;
 
-        if (!userId) {
-          toast.error("Invalid user id");
-          return;
-        }
+        if (!userId) return toast.error("Invalid user id");
 
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`
@@ -40,7 +30,6 @@ const Profile = () => {
 
         setUser(res.data.user);
 
-        // ✅ safe form set
         setForm({
           firstName: res.data.user.firstName || "",
           lastName: res.data.user.lastName || "",
@@ -48,9 +37,7 @@ const Profile = () => {
           email: res.data.user.email || "",
           profileImage: null,
         });
-
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
         toast.error("Failed to fetch user");
       }
     };
@@ -58,32 +45,20 @@ const Profile = () => {
     fetchUser();
   }, []);
 
-  // ================= INPUT =================
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  // ================= IMAGE =================
-  const handleImage = (e) => {
+  const handleImage = (e) =>
     setForm({ ...form, profileImage: e.target.files[0] });
-  };
 
-  // ================= UPDATE =================
   const handleUpdate = async () => {
     setLoading(true);
 
     try {
       const storedUser = JSON.parse(localStorage.getItem("user"));
-
       const userId = storedUser?._id || storedUser?.id;
 
-      if (!userId) {
-        toast.error("User ID missing");
-        return;
-      }
-
       const formData = new FormData();
-
       formData.append("firstName", form.firstName);
       formData.append("lastName", form.lastName);
       formData.append("email", form.email);
@@ -96,34 +71,16 @@ const Profile = () => {
       const res = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      toast.success(res.data.message);
-
       setUser(res.data.user);
-
-      // reset form
-      setForm({
-        firstName: res.data.user.firstName,
-        lastName: res.data.user.lastName,
-        mobile: res.data.user.mobile,
-        email: res.data.user.email,
-        profileImage: null,
-      });
-
-      // update localStorage
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       setEditMode(false);
-
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || "Update failed");
+      toast.success("Profile updated!");
+    } catch (err) {
+      toast.error("Update failed");
     } finally {
       setLoading(false);
     }
@@ -133,49 +90,58 @@ const Profile = () => {
     <>
       <Navbar />
 
-      <div className="pt-28 min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900 px-4">
+      {/* MAIN WRAPPER */}
+      <div className="min-h-screen pt-20 sm:pt-24 flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black px-3 py-6">
 
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl w-full max-w-md">
+        {/* PROFILE CARD */}
+        <div className="
+          w-full max-w-[260px] sm:max-w-xs md:max-w-sm
+          bg-white/5 backdrop-blur-xl border border-white/10
+          rounded-xl shadow-xl p-3 sm:p-4
+        ">
 
-          {/* PROFILE IMAGE */}
-          <div className="flex flex-col items-center mb-6">
+          {/* PROFILE HEADER */}
+          <div className="flex flex-col items-center text-center">
 
             {user?.profileImage ? (
               <img
-                src={user.profileImage} // ✅ ImageKit URL
-                className="w-20 h-20 rounded-full object-cover"
-                alt="profile"
+                src={user.profileImage}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border border-white/20"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-2xl font-bold">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-base sm:text-lg font-bold text-white">
                 {user?.firstName?.charAt(0)}
               </div>
             )}
 
-            <h2 className="text-xl font-bold mt-3 text-white">
+            <h2 className="text-sm sm:text-base font-semibold text-white mt-2">
               {user?.firstName} {user?.lastName}
             </h2>
 
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-[10px] sm:text-xs">
               {user?.email}
             </p>
           </div>
 
+          {/* VIEW MODE */}
           {!editMode ? (
-            <div>
-              <div className="text-gray-300 mb-3">
+            <div className="mt-3 sm:mt-4 space-y-3">
+
+              <div className="bg-white/5 border border-white/10 p-2 rounded-lg text-gray-300 text-[10px] sm:text-xs">
                 Mobile: {user?.mobile}
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="w-full bg-blue-500 py-2 rounded-full"
+                className="w-full py-2 rounded-lg bg-blue-600 text-white text-xs sm:text-sm"
               >
-                Edit Profile
+                Edit
               </button>
+
             </div>
           ) : (
-            <div className="space-y-3">
+            /* EDIT MODE */
+            <div className="mt-3 sm:mt-4 space-y-2">
 
               {["firstName", "lastName", "email", "mobile"].map((f) => (
                 <input
@@ -183,32 +149,37 @@ const Profile = () => {
                   name={f}
                   value={form[f]}
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-white/10 text-white"
+                  placeholder={f}
+                  className="w-full px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-[10px] sm:text-xs outline-none"
                 />
               ))}
 
               <input
                 type="file"
-                accept="image/*"
                 onChange={handleImage}
-                className="w-full p-2 text-white"
+                className="w-full text-[10px] sm:text-xs text-gray-300"
               />
 
-              {/* PREVIEW */}
               {form.profileImage && (
                 <img
                   src={URL.createObjectURL(form.profileImage)}
-                  className="w-16 h-16 rounded-full"
-                  alt="preview"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mx-auto"
                 />
               )}
 
               <button
                 onClick={handleUpdate}
                 disabled={loading}
-                className="w-full bg-green-500 py-2 rounded-full"
+                className="w-full py-2 rounded-lg bg-green-600 text-white text-xs sm:text-sm"
               >
-                {loading ? "Saving..." : "Save Changes"}
+                {loading ? "Saving..." : "Save"}
+              </button>
+
+              <button
+                onClick={() => setEditMode(false)}
+                className="w-full py-1.5 rounded-lg bg-white/10 text-white text-[10px] sm:text-xs"
+              >
+                Cancel
               </button>
 
             </div>

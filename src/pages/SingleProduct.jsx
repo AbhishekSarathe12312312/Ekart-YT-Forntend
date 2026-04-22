@@ -2,17 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { toast } from "react-toastify";
 
 const SingleProduct = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // ✅ MAIN IMAGE STATE
   const [mainImage, setMainImage] = useState("");
 
-  // ================= FETCH PRODUCT =================
   const fetchProduct = async () => {
     try {
       const res = await axios.get(
@@ -20,16 +18,13 @@ const SingleProduct = () => {
       );
 
       const data = res.data.product;
-
       setProduct(data);
 
-      // ✅ FIRST IMAGE AS DEFAULT (ImageKit URL)
       if (data.images && data.images.length > 0) {
         setMainImage(data.images[0]);
       } else if (data.image) {
         setMainImage(data.image);
       }
-
     } catch (error) {
       console.log(error);
     } finally {
@@ -37,7 +32,6 @@ const SingleProduct = () => {
     }
   };
 
-  // ================= ADD TO CART =================
   const handleAddToCart = async () => {
     try {
       await axios.post(
@@ -50,10 +44,10 @@ const SingleProduct = () => {
         }
       );
 
-      alert("Added to cart ✅");
+      toast.success("Added to cart ✅");
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
-      alert("Error ❌");
+      toast.error("Failed to add to cart ❌");
     }
   };
 
@@ -61,7 +55,6 @@ const SingleProduct = () => {
     fetchProduct();
   }, []);
 
-  // ================= LOADING =================
   if (loading) {
     return (
       <>
@@ -88,22 +81,22 @@ const SingleProduct = () => {
     <>
       <Navbar />
 
-      <div className="pt-28 min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
+      <div className="pt-20 sm:pt-28 min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
 
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
 
-          {/* ================= IMAGE GALLERY ================= */}
-          <div className="flex gap-4">
+          {/* ================= IMAGE SECTION ================= */}
+          <div className="flex flex-col sm:flex-row gap-4">
 
             {/* THUMBNAILS */}
-            <div className="flex flex-col gap-3">
+            <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
 
               {product.images?.map((img, i) => (
                 <img
                   key={i}
-                  src={img}   // ✅ direct URL
+                  src={img}
                   onClick={() => setMainImage(img)}
-                  className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${
+                  className={`w-16 h-16 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 object-cover rounded-lg cursor-pointer border-2 transition ${
                     mainImage === img
                       ? "border-yellow-400"
                       : "border-transparent"
@@ -115,13 +108,13 @@ const SingleProduct = () => {
             </div>
 
             {/* MAIN IMAGE */}
-            <div className="flex-1 flex justify-center">
+            <div className="flex-1 flex justify-center items-center">
 
-              <div className="bg-white/10 p-4 rounded-2xl border border-white/20">
+              <div className="bg-white/10 p-4 sm:p-6 rounded-2xl border border-white/20 w-full flex justify-center">
 
                 <img
-                  src={mainImage}   // ✅ direct URL
-                  className="w-[300px] h-[300px] object-cover rounded-xl transition duration-300 hover:scale-105"
+                  src={mainImage}
+                  className="w-[220px] sm:w-[280px] md:w-[320px] lg:w-[350px] h-[220px] sm:h-[280px] md:h-[320px] object-cover rounded-xl transition duration-300 hover:scale-105"
                   alt="product"
                 />
 
@@ -132,29 +125,29 @@ const SingleProduct = () => {
           </div>
 
           {/* ================= DETAILS ================= */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5">
 
             <span className="bg-yellow-400 text-black px-3 py-1 text-xs rounded-full w-fit font-semibold">
               {product.category}
             </span>
 
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
               {product.name}
             </h1>
 
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
               {product.description}
             </p>
 
-            <div className="flex gap-4 items-center">
-              <span className="text-3xl text-yellow-400 font-bold">
+            <div className="flex items-center gap-4">
+              <span className="text-2xl sm:text-3xl text-yellow-400 font-bold">
                 ₹{product.price}
               </span>
             </div>
 
             <button
               onClick={handleAddToCart}
-              className="bg-yellow-400 text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition"
+              className="bg-yellow-400 text-black px-5 py-2 sm:px-6 sm:py-3 rounded-full font-semibold hover:scale-105 transition w-full sm:w-fit"
             >
               Add to Cart
             </button>

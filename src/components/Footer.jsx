@@ -3,33 +3,41 @@ import { FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-950 text-white">
 
-      <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
 
-        {/* Brand */}
+        {/* BRAND */}
         <div>
-          <h1 className="text-2xl font-bold mb-3">ShopifyX</h1>
-          <p className="text-gray-400 text-sm">
-            Your one-stop destination for fashion, gadgets and lifestyle products.
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">
+            Shopify<span className="text-yellow-400">X</span>
+          </h1>
+          <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+            One-stop destination for fashion, gadgets and lifestyle products.
           </p>
         </div>
 
-        {/* Links */}
+        {/* LINKS */}
         <div>
-          <h2 className="font-semibold mb-3">Quick Links</h2>
-          <ul className="space-y-2 text-gray-400 text-sm">
+          <h2 className="text-sm sm:text-base font-semibold mb-3">
+            Quick Links
+          </h2>
+
+          <ul className="space-y-2 text-gray-400 text-xs sm:text-sm">
             <li className="hover:text-white cursor-pointer">Home</li>
             <li className="hover:text-white cursor-pointer">Shop</li>
             <li className="hover:text-white cursor-pointer">Categories</li>
-            <li className="hover:text-white cursor-pointer">Contact</li>
+            <li className="hover:text-white cursor-pointer">Offers</li>
           </ul>
         </div>
 
-        {/* Support */}
+        {/* SUPPORT */}
         <div>
-          <h2 className="font-semibold mb-3">Support</h2>
-          <ul className="space-y-2 text-gray-400 text-sm">
+          <h2 className="text-sm sm:text-base font-semibold mb-3">
+            Support
+          </h2>
+
+          <ul className="space-y-2 text-gray-400 text-xs sm:text-sm">
             <li className="hover:text-white cursor-pointer">Help Center</li>
             <li className="hover:text-white cursor-pointer">Shipping Info</li>
             <li className="hover:text-white cursor-pointer">Returns</li>
@@ -37,24 +45,34 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Social */}
+        {/* SOCIAL */}
         <div>
-          <h2 className="font-semibold mb-3">Follow Us</h2>
+          <h2 className="text-sm sm:text-base font-semibold mb-3">
+            Follow Us
+          </h2>
 
-          <div className="flex gap-5 mt-3 text-2xl">
-
+          <div className="flex gap-4 text-xl sm:text-2xl text-gray-300">
             <FaFacebook className="hover:text-blue-500 cursor-pointer transition" />
             <FaYoutube className="hover:text-red-500 cursor-pointer transition" />
             <FaInstagram className="hover:text-pink-500 cursor-pointer transition" />
-
           </div>
         </div>
 
       </div>
 
-      {/* Bottom */}
-      <div className="border-t border-gray-700 py-4 text-center text-gray-400 text-sm">
-        © 2026 ShopifyX. Made with ❤️ for ecommerce
+      {/* BOTTOM */}
+      <div className="border-t border-gray-800">
+
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between text-gray-500 text-xs sm:text-sm gap-2">
+
+          <p>© 2026 ShopifyX. All rights reserved.</p>
+
+          <p className="text-center sm:text-right">
+            Made with <span className="text-red-500">❤️</span> for ecommerce
+          </p>
+
+        </div>
+
       </div>
 
     </footer>
