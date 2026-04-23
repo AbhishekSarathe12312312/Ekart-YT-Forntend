@@ -9,7 +9,8 @@ import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
-import ProductDetail from "./pages/SingleProduct";
+import SingleProduct from "./pages/SingleProduct";
+import Deals from "./pages/Deals";
 
 function App() {
   return (
@@ -35,7 +36,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/products" element={<Products />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/product/:id" element={<SingleProduct />} />
+        <Route path="/deals" element={<Deals />} />
       </Routes>
 
     </BrowserRouter>

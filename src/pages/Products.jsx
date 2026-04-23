@@ -10,7 +10,6 @@ const Products = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-
   const navigate = useNavigate();
 
   const handleAddToCart = async (id) => {

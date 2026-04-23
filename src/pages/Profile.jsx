@@ -85,55 +85,54 @@ const Profile = () => {
       <Navbar />
 
       <div className="min-h-screen pt-20 flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-black px-4">
-        <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 shadow-2xl">
-          {/* Avatar */}
+        <div className="w-full max-w-md sm:max-w-lg bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 sm:p-7 shadow-2xl">
+          {/* Avatar Section */}
           <div className="flex flex-col items-center text-center">
-            {/* AVATAR */}
             {user?.profileImage ? (
               <img
                 src={user.profileImage}
-                className="w-20 h-20 rounded-xl object-cover border-2 border-white/10 shadow-md"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-white/10 shadow-md"
               />
             ) : (
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white shadow-md">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-2xl sm:text-3xl font-bold text-white shadow-md">
                 {user?.firstName?.charAt(0)}
               </div>
             )}
 
-            {/* NAME */}
-            <h2 className="mt-3 text-lg font-semibold text-white">
+            <h2 className="mt-4 text-xl sm:text-2xl font-semibold text-white">
               {user?.firstName} {user?.lastName}
             </h2>
 
-            {/* EMAIL */}
-            <p className="text-sm text-gray-400 mt-1">{user?.email}</p>
+            <p className="text-sm sm:text-base text-gray-400 mt-1 break-all">
+              {user?.email}
+            </p>
           </div>
 
           {/* VIEW MODE */}
           {!editMode ? (
-            <div className="mt-6 space-y-3">
-              <div className="bg-white/5 border border-white/10 p-3 rounded-lg text-sm text-gray-300">
+            <div className="mt-6 space-y-4">
+              <div className="bg-white/5 border border-white/10 p-4 rounded-xl text-sm sm:text-base text-gray-300 text-center">
                 📱 {user?.mobile || "No mobile added"}
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 transition font-medium"
+                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition font-medium text-sm sm:text-base"
               >
                 Edit Profile
               </button>
             </div>
           ) : (
             /* EDIT MODE */
-            <div className="mt-4 space-y-2">
+            <div className="mt-6 space-y-3">
               {/* INPUT GRID */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input
                   name="firstName"
                   value={form.firstName}
                   onChange={handleChange}
                   placeholder="First Name"
-                  className="text-white w-full px-2 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-xs outline-none focus:border-blue-500"
+                  className="text-white px-3 py-2.5 rounded-xl bg-zinc-800/60 border border-white/10 text-sm outline-none focus:border-blue-500"
                 />
 
                 <input
@@ -141,7 +140,7 @@ const Profile = () => {
                   value={form.lastName}
                   onChange={handleChange}
                   placeholder="Last Name"
-                  className=" text-white w-full px-2 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-xs outline-none focus:border-blue-500"
+                  className="text-white px-3 py-2.5 rounded-xl bg-zinc-800/60 border border-white/10 text-sm outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -150,7 +149,7 @@ const Profile = () => {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="text-white w-full px-2 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-xs outline-none focus:border-blue-500"
+                className="text-white w-full px-3 py-2.5 rounded-xl bg-zinc-800/60 border border-white/10 text-sm outline-none focus:border-blue-500"
               />
 
               <input
@@ -158,42 +157,44 @@ const Profile = () => {
                 value={form.mobile}
                 onChange={handleChange}
                 placeholder="Mobile"
-                className="text-white w-full px-2 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-xs outline-none focus:border-blue-500"
+                className="text-white w-full px-3 py-2.5 rounded-xl bg-zinc-800/60 border border-white/10 text-sm outline-none focus:border-blue-500"
               />
 
-              {/* FILE UPLOAD (compact card style) */}
-              <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-800/40 border border-white/10">
-                <span className="text-xs text-gray-300">Profile Image</span>
+              {/* FILE UPLOAD */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-3 py-2.5 rounded-xl bg-zinc-800/40 border border-white/10">
+                <span className="text-xs sm:text-sm text-gray-300">
+                  Profile Image
+                </span>
                 <input
                   type="file"
                   onChange={handleImage}
-                  className="text-[10px] text-gray-300 w-[140px]"
+                  className="text-xs text-gray-300"
                 />
               </div>
 
               {/* IMAGE PREVIEW */}
               {form.profileImage && (
-                <div className="flex justify-center mt-1">
+                <div className="flex justify-center mt-2">
                   <img
                     src={URL.createObjectURL(form.profileImage)}
-                    className="w-14 h-14 rounded-full border border-white/20 object-cover"
+                    className="w-16 h-16 rounded-full border border-white/20 object-cover"
                   />
                 </div>
               )}
 
               {/* ACTION BUTTONS */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-3 mt-4">
                 <button
                   onClick={handleUpdate}
                   disabled={loading}
-                  className="flex-1 py-2 rounded-lg bg-green-600 active:scale-95 transition text-xs font-medium"
+                  className="flex-1 py-2.5 rounded-xl bg-green-600 active:scale-95 transition text-sm font-medium"
                 >
                   {loading ? "Saving..." : "Save"}
                 </button>
 
                 <button
                   onClick={() => setEditMode(false)}
-                  className="text-white flex-1 py-2 rounded-lg bg-white/10 active:scale-95 transition text-xs"
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 active:scale-95 transition text-sm text-white"
                 >
                   Cancel
                 </button>

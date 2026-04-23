@@ -20,6 +20,10 @@ const Navbar = () => {
     images: [],
   });
 
+  const [form, setForm] = useState({
+    profileImage: null,
+  });
+
   const navigate = useNavigate();
 
   // ================= CART =================
@@ -56,6 +60,28 @@ const Navbar = () => {
       setUserPhoto(storedUser.profilePic || storedUser.avatar || "");
     }
 
+    const fetchUser = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const userId = storedUser?._id || storedUser?.id;
+
+        if (!userId) return toast.error("Invalid user id");
+
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
+        );
+
+        setUser(res.data.user);
+
+        setForm({
+          profileImage: null,
+        });
+      } catch {
+        toast.error("Failed to fetch user");
+      }
+    };
+
+    fetchUser();
     fetchCart();
   }, []);
 
@@ -115,52 +141,58 @@ const Navbar = () => {
   return (
     <>
       {/* ================= NAVBAR ================= */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 text-white">
+      <nav
+        className="fixed top-0 left-0 w-full z-50 
+      bg-gradient-to-r from-zinc-900/80 via-zinc-900/70 to-zinc-900/80 
+      backdrop-blur-2xl border-b border-white/10 
+      shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4 text-white">
           {/* LOGO */}
           <h1
             onClick={() => navigate("/")}
-            className="text-2xl font-extrabold cursor-pointer"
+            className="text-2xl sm:text-3xl font-extrabold cursor-pointer tracking-wide"
           >
             Shopify<span className="text-yellow-400">X</span>
           </h1>
 
           {/* MENU */}
-          <ul className="hidden md:flex gap-8 text-gray-200">
+          <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
             <li
               onClick={() => navigate("/")}
-              className="cursor-pointer hover:text-yellow-400"
+              className="cursor-pointer hover:text-yellow-400 transition"
             >
               Home
             </li>
             <li
               onClick={() => navigate("/products")}
-              className="cursor-pointer hover:text-yellow-400"
+              className="cursor-pointer hover:text-yellow-400 transition"
             >
               Products
             </li>
           </ul>
 
           {/* RIGHT SIDE */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 sm:gap-6">
             {/* ADD BUTTON */}
             {user && (
               <button
                 onClick={() => setShowModal(true)}
-                className="hidden md:block bg-yellow-400 text-black px-4 py-2 rounded-full font-semibold hover:scale-105 transition"
+                className="hidden md:block bg-yellow-400 text-black px-5 py-2 rounded-full text-sm font-semibold hover:scale-105 transition shadow-md"
               >
-                + Add
+                + Add Product
               </button>
             )}
 
             {/* CART */}
             <div
               onClick={() => navigate("/cart")}
-              className="relative cursor-pointer"
+              className="relative cursor-pointer group"
             >
-              <FiShoppingCart className="text-xl hover:text-yellow-400" />
+              <FiShoppingCart className="text-2xl group-hover:text-yellow-400 transition" />
+
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full font-bold shadow">
                   {cartCount}
                 </span>
               )}
@@ -169,12 +201,16 @@ const Navbar = () => {
             {/* USER */}
             <div
               onClick={() => navigate("/profile")}
-              className="w-9 h-9 rounded-full overflow-hidden bg-white/20 flex items-center justify-center cursor-pointer"
+              className="w-10 h-10 rounded-full overflow-hidden bg-white/10 flex items-center justify-center cursor-pointer border border-white/10"
             >
-              {userPhoto ? (
-                <img src={userPhoto} className="w-full h-full object-cover" />
+              {user?.profileImage ? (
+                <img
+                  src={user.profileImage}
+                  alt="profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <FiUser />
+                <FiUser className="text-lg" />
               )}
             </div>
 
@@ -182,14 +218,14 @@ const Navbar = () => {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="hidden md:block bg-white text-black px-4 py-2 rounded-full text-sm font-semibold"
+                className="hidden cursor-pointer md:block bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition"
               >
                 Logout
               </button>
             ) : (
               <button
                 onClick={() => navigate("/login")}
-                className="hidden md:block bg-yellow-400 text-black px-6 py-2 rounded-full font-bold"
+                className="hidden md:block bg-yellow-400 text-black px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition"
               >
                 Login
               </button>
@@ -197,7 +233,7 @@ const Navbar = () => {
 
             {/* MOBILE MENU */}
             <button
-              className="md:hidden text-2xl"
+              className="md:hidden text-3xl"
               onClick={() => setSidebar(true)}
             >
               <FiMenu />
@@ -207,7 +243,6 @@ const Navbar = () => {
       </nav>
 
       {/* ================= SIDEBAR ================= */}
-      {/* Overlay */}
       <Sidebar
         sidebar={sidebar}
         setSidebar={setSidebar}
@@ -216,7 +251,7 @@ const Navbar = () => {
         handleLogout={handleLogout}
       />
 
-      {/* ================= SMALL MODAL ================= */}
+      {/* ================= MODAL ================= */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
@@ -224,12 +259,11 @@ const Navbar = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl p-5 
-      bg-zinc-900/80 backdrop-blur-xl border border-white/10 text-white shadow-2xl"
+            className="w-full max-w-lg rounded-3xl p-7 bg-zinc-900 border border-white/10 text-white shadow-2xl animate-scaleIn"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Add Product</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Add Product</h2>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-white/60 hover:text-red-400 text-xl"
@@ -239,7 +273,7 @@ const Navbar = () => {
             </div>
 
             {/* Inputs */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {["name", "description", "price", "category", "stock"].map(
                 (f) => (
                   <input
@@ -248,23 +282,21 @@ const Navbar = () => {
                     value={product[f]}
                     onChange={handleChange}
                     placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
-                    className="w-full px-3 py-2.5 rounded-lg bg-zinc-800/60 
-            border border-white/10 text-sm outline-none
-            focus:border-yellow-400 transition"
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm outline-none focus:border-yellow-400 transition"
                   />
                 ),
               )}
 
               {/* File Upload */}
-              <div className="border border-white/10 bg-zinc-800/40 rounded-lg p-3">
+              <div className="border border-dashed border-white/20 rounded-xl p-4 text-center bg-zinc-800/50">
                 <input
                   type="file"
                   multiple
                   onChange={handleImageChange}
-                  className="w-full text-xs text-white/70"
+                  className="text-xs text-white/70"
                 />
-                <p className="text-[11px] text-white/40 mt-1">
-                  Upload product images (multiple allowed)
+                <p className="text-[12px] text-white/40 mt-2">
+                  Upload product images
                 </p>
               </div>
             </div>
@@ -272,9 +304,7 @@ const Navbar = () => {
             {/* Button */}
             <button
               onClick={handleAddProduct}
-              className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-yellow-500 
-        text-black py-2.5 rounded-lg font-semibold text-sm
-        hover:scale-[1.02] active:scale-95 transition"
+              className="w-full mt-6 bg-yellow-400 text-black py-3 rounded-xl font-semibold text-sm hover:scale-[1.02] active:scale-95 transition"
             >
               Save Product
             </button>
