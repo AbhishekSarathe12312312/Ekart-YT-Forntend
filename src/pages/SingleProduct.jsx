@@ -20,9 +20,9 @@ const SingleProduct = () => {
       const data = res.data.product;
       setProduct(data);
 
-      if (data.images && data.images.length > 0) {
+      if (data.images?.length > 0) {
         setMainImage(data.images[0]);
-      } else if (data.image) {
+      } else {
         setMainImage(data.image);
       }
     } catch (error) {
@@ -59,7 +59,7 @@ const SingleProduct = () => {
     return (
       <>
         <Navbar />
-        <div className="pt-28 flex justify-center text-white bg-black min-h-screen">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
           Loading...
         </div>
       </>
@@ -70,7 +70,7 @@ const SingleProduct = () => {
     return (
       <>
         <Navbar />
-        <div className="pt-28 text-center text-red-400 bg-black min-h-screen">
+        <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
           Product not found ❌
         </div>
       </>
@@ -81,22 +81,34 @@ const SingleProduct = () => {
     <>
       <Navbar />
 
-      <div className="pt-20 sm:pt-28 min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
+      <div className="relative min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white overflow-hidden">
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+        {/* Glow Effects (Hero style) */}
+        <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 opacity-20 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-500 opacity-20 blur-3xl rounded-full"></div>
 
-          {/* ================= IMAGE SECTION ================= */}
-          <div className="flex flex-col sm:flex-row gap-4">
+        {/* Content */}
+        <div className="relative max-w-6xl mx-auto px-4 py-24 grid md:grid-cols-2 gap-10 items-center">
 
-            {/* THUMBNAILS */}
-            <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
+          {/* LEFT - IMAGE */}
+          <div className="flex flex-col items-center">
 
+            <div className="bg-white/10 border border-white/20 p-6 rounded-2xl backdrop-blur-md">
+              <img
+                src={mainImage}
+                className="w-[280px] md:w-[350px] h-[280px] object-cover rounded-xl hover:scale-105 transition"
+                alt="product"
+              />
+            </div>
+
+            {/* thumbnails */}
+            <div className="flex gap-3 mt-4 overflow-x-auto">
               {product.images?.map((img, i) => (
                 <img
                   key={i}
                   src={img}
                   onClick={() => setMainImage(img)}
-                  className={`w-16 h-16 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 object-cover rounded-lg cursor-pointer border-2 transition ${
+                  className={`w-14 h-14 object-cover rounded-lg cursor-pointer border-2 ${
                     mainImage === img
                       ? "border-yellow-400"
                       : "border-transparent"
@@ -104,54 +116,47 @@ const SingleProduct = () => {
                   alt="thumb"
                 />
               ))}
-
             </div>
-
-            {/* MAIN IMAGE */}
-            <div className="flex-1 flex justify-center items-center">
-
-              <div className="bg-white/10 p-4 sm:p-6 rounded-2xl border border-white/20 w-full flex justify-center">
-
-                <img
-                  src={mainImage}
-                  className="w-[220px] sm:w-[280px] md:w-[320px] lg:w-[350px] h-[220px] sm:h-[280px] md:h-[320px] object-cover rounded-xl transition duration-300 hover:scale-105"
-                  alt="product"
-                />
-
-              </div>
-
-            </div>
-
           </div>
 
-          {/* ================= DETAILS ================= */}
-          <div className="flex flex-col gap-4 sm:gap-5">
+          {/* RIGHT - DETAILS */}
+          <div className="text-center md:text-left">
 
-            <span className="bg-yellow-400 text-black px-3 py-1 text-xs rounded-full w-fit font-semibold">
+            {/* badge */}
+            <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-semibold">
               {product.category}
             </span>
 
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+            {/* name */}
+            <h1 className="text-3xl md:text-5xl font-bold mt-4">
               {product.name}
             </h1>
 
-            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+            {/* description */}
+            <p className="text-gray-300 mt-4 text-sm md:text-base leading-relaxed">
               {product.description}
             </p>
 
-            <div className="flex items-center gap-4">
-              <span className="text-2xl sm:text-3xl text-yellow-400 font-bold">
-                ₹{product.price}
-              </span>
+            {/* price */}
+            <div className="mt-6 text-3xl font-bold text-yellow-400">
+              ₹{product.price}
             </div>
 
-            <button
-              onClick={handleAddToCart}
-              className="bg-yellow-400 text-black px-5 py-2 sm:px-6 sm:py-3 rounded-full font-semibold hover:scale-105 transition w-full sm:w-fit"
-            >
-              Add to Cart
-            </button>
+            {/* buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
 
+              <button
+                onClick={handleAddToCart}
+                className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:scale-105 transition"
+              >
+                Add to Cart
+              </button>
+
+              <button className="border border-white px-6 py-3 rounded-full hover:bg-white hover:text-black transition">
+                Buy Now
+              </button>
+
+            </div>
           </div>
 
         </div>

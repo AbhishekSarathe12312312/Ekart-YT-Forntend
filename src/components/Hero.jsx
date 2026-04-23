@@ -3,14 +3,14 @@ import React from "react";
 
 const Hero = () => {
   return (
-    <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white overflow-x-hidden">
+    <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white overflow-x-hidden min-h-screen">
 
       {/* Glow background */}
       <div className="absolute top-10 left-5 sm:left-10 w-40 sm:w-72 h-40 sm:h-72 bg-purple-500 opacity-20 blur-3xl rounded-full"></div>
       <div className="absolute bottom-10 right-5 sm:right-10 w-48 sm:w-80 h-48 sm:h-80 bg-blue-500 opacity-20 blur-3xl rounded-full"></div>
 
       {/* CONTENT */}
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 flex flex-col items-center text-center">
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-24 flex flex-col items-center text-center">
 
         {/* BADGE */}
         <span className="bg-yellow-400 text-black px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5">

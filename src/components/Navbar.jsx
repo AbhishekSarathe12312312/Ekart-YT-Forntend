@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
+import Sidebar from "./Sidebar";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -29,15 +30,15 @@ const Navbar = () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/cart/getCart`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       const items = res.data?.items || res.data?.cart?.items || [];
 
       const totalQty = Array.isArray(items)
         ? items.reduce(
-            (sum, item) => sum + (Number(item?.qty || item?.quantity || 0)),
-            0
+            (sum, item) => sum + Number(item?.qty || item?.quantity || 0),
+            0,
           )
         : 0;
 
@@ -77,14 +78,12 @@ const Navbar = () => {
       formData.append("category", product.category);
       formData.append("stock", Number(product.stock));
 
-      product.images.forEach((file) =>
-        formData.append("images", file)
-      );
+      product.images.forEach((file) => formData.append("images", file));
 
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/product/add`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       alert("Product added successfully");
@@ -117,9 +116,7 @@ const Navbar = () => {
     <>
       {/* ================= NAVBAR ================= */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg">
-
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 text-white">
-
           {/* LOGO */}
           <h1
             onClick={() => navigate("/")}
@@ -130,17 +127,22 @@ const Navbar = () => {
 
           {/* MENU */}
           <ul className="hidden md:flex gap-8 text-gray-200">
-            <li onClick={() => navigate("/home")} className="cursor-pointer hover:text-yellow-400">
+            <li
+              onClick={() => navigate("/")}
+              className="cursor-pointer hover:text-yellow-400"
+            >
               Home
             </li>
-            <li onClick={() => navigate("/products")} className="cursor-pointer hover:text-yellow-400">
+            <li
+              onClick={() => navigate("/products")}
+              className="cursor-pointer hover:text-yellow-400"
+            >
               Products
             </li>
           </ul>
 
           {/* RIGHT SIDE */}
           <div className="flex items-center gap-5">
-
             {/* ADD BUTTON */}
             {user && (
               <button
@@ -200,85 +202,79 @@ const Navbar = () => {
             >
               <FiMenu />
             </button>
-
           </div>
         </div>
       </nav>
 
       {/* ================= SIDEBAR ================= */}
-      <div
-        className={`fixed top-0 right-0 h-full w-72 bg-black/90 backdrop-blur-xl z-50 transition-transform duration-300 ${
-          sidebar ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-6 text-white">
-
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold">Menu</h2>
-            <FiX onClick={() => setSidebar(false)} className="text-2xl cursor-pointer" />
-          </div>
-
-          <div className="space-y-4">
-
-            <p onClick={() => { navigate("/"); setSidebar(false); }} className="cursor-pointer">🏠 Home</p>
-            <p onClick={() => { navigate("/products"); setSidebar(false); }} className="cursor-pointer">🛍️ Products</p>
-
-            {user && (
-              <p onClick={() => { setShowModal(true); setSidebar(false); }} className="cursor-pointer text-yellow-400">
-                ➕ Add Product
-              </p>
-            )}
-
-            <p onClick={() => { navigate("/cart"); setSidebar(false); }} className="cursor-pointer">🛒 Cart</p>
-            <p onClick={() => { navigate("/profile"); setSidebar(false); }} className="cursor-pointer">👤 Profile</p>
-
-            {user ? (
-              <p onClick={handleLogout} className="cursor-pointer text-red-400">🚪 Logout</p>
-            ) : (
-              <p onClick={() => navigate("/login")} className="cursor-pointer text-yellow-400">🔑 Login</p>
-            )}
-
-          </div>
-        </div>
-      </div>
+      {/* Overlay */}
+      <Sidebar
+        sidebar={sidebar}
+        setSidebar={setSidebar}
+        user={user}
+        setShowModal={setShowModal}
+        handleLogout={handleLogout}
+      />
 
       {/* ================= SMALL MODAL ================= */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
           onClick={() => setShowModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-[340px] sm:w-[380px] max-w-[92%] rounded-xl p-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white"
+            className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl p-5 
+      bg-zinc-900/80 backdrop-blur-xl border border-white/10 text-white shadow-2xl"
           >
-            <h2 className="text-lg font-bold mb-3 text-center">
-              Add Product
-            </h2>
-
-            <div className="space-y-2">
-              {["name", "description", "price", "category", "stock"].map((f) => (
-                <input
-                  key={f}
-                  name={f}
-                  value={product[f]}
-                  onChange={handleChange}
-                  placeholder={f.toUpperCase()}
-                  className="w-full p-2.5 rounded-lg bg-white/10 border border-white/20 text-sm outline-none"
-                />
-              ))}
-
-              <input
-                type="file"
-                multiple
-                onChange={handleImageChange}
-                className="w-full text-xs"
-              />
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Add Product</h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-white/60 hover:text-red-400 text-xl"
+              >
+                ✕
+              </button>
             </div>
 
+            {/* Inputs */}
+            <div className="space-y-3">
+              {["name", "description", "price", "category", "stock"].map(
+                (f) => (
+                  <input
+                    key={f}
+                    name={f}
+                    value={product[f]}
+                    onChange={handleChange}
+                    placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
+                    className="w-full px-3 py-2.5 rounded-lg bg-zinc-800/60 
+            border border-white/10 text-sm outline-none
+            focus:border-yellow-400 transition"
+                  />
+                ),
+              )}
+
+              {/* File Upload */}
+              <div className="border border-white/10 bg-zinc-800/40 rounded-lg p-3">
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleImageChange}
+                  className="w-full text-xs text-white/70"
+                />
+                <p className="text-[11px] text-white/40 mt-1">
+                  Upload product images (multiple allowed)
+                </p>
+              </div>
+            </div>
+
+            {/* Button */}
             <button
               onClick={handleAddProduct}
-              className="w-full mt-3 bg-yellow-400 text-black py-2 rounded-lg font-semibold text-sm"
+              className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-yellow-500 
+        text-black py-2.5 rounded-lg font-semibold text-sm
+        hover:scale-[1.02] active:scale-95 transition"
             >
               Save Product
             </button>
