@@ -12,25 +12,35 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const handleAddToCart = async (id) => {
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/cart/addCart`,
-        { productId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+ const handleAddToCart = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
 
-      window.dispatchEvent(new Event("cartUpdated"));
-      toast.success("Added to cart 🛒");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to add to cart ❌");
+    // ❌ NOT LOGGED IN
+    if (!token) {
+      toast.error("Please login first 🔐");
+      navigate("/login");
+      return;
     }
-  };
+
+    await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/cart/addCart`,
+      { productId: id },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    window.dispatchEvent(new Event("cartUpdated"));
+    // toast.success("Added to cart 🛒");
+
+  } catch (error) {
+    console.log(error);
+    toast.error("Failed to add to cart ❌");
+  }
+};
 
   const fetchProducts = async () => {
     try {

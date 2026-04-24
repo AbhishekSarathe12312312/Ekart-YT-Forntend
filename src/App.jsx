@@ -11,11 +11,11 @@ import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import SingleProduct from "./pages/SingleProduct";
 import Deals from "./pages/Deals";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
-
       {/* 🌐 GLOBAL TOAST CONFIG (ONE TIME ONLY) */}
       <ToastContainer
         position="top-right"
@@ -32,14 +32,27 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/contact" element={<Contact />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/product/:id" element={<SingleProduct />} />
         <Route path="/deals" element={<Deals />} />
       </Routes>
-
     </BrowserRouter>
   );
 }

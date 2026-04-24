@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
+import { FiShoppingCart, FiUser, FiMenu } from "react-icons/fi";
 import Sidebar from "./Sidebar";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -20,10 +21,6 @@ const Navbar = () => {
     images: [],
   });
 
-  const [form, setForm] = useState({
-    profileImage: null,
-  });
-
   const navigate = useNavigate();
 
   // ================= CART =================
@@ -34,7 +31,11 @@ const Navbar = () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/cart/getCart`,
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       const items = res.data?.items || res.data?.cart?.items || [];
@@ -51,34 +52,39 @@ const Navbar = () => {
       setCartCount(0);
     }
   };
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      fetchCart();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
     if (storedUser) {
-      setUser(storedUser.firstName || "User");
-      setUserPhoto(storedUser.profilePic || storedUser.avatar || "");
+      setUser(storedUser);
+      setUserPhoto(storedUser.profileImage || storedUser.avatar || "");
     }
 
     const fetchUser = async () => {
-      try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        const userId = storedUser?._id || storedUser?.id;
+      const token = localStorage.getItem("token");
+      const userId = storedUser?._id || storedUser?.id;
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-        if (!userId) return toast.error("Invalid user id");
-
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
-        );
-
-        setUser(res.data.user);
-
-        setForm({
-          profileImage: null,
-        });
-      } catch {
-        toast.error("Failed to fetch user");
-      }
+      setUser(res.data.user);
     };
 
     fetchUser();
@@ -96,6 +102,20 @@ const Navbar = () => {
 
   const handleAddProduct = async () => {
     try {
+      const token = localStorage.getItem("token");
+
+      // 🔥 AUTH CHECK
+      if (!token) {
+        toast.error("Login first");
+        return;
+      }
+
+      // 🔥 BASIC VALIDATION (safe guard)
+      if (!product.name || !product.price) {
+        toast.error("Name and Price are required");
+        return;
+      }
+
       const formData = new FormData();
 
       formData.append("name", product.name);
@@ -109,10 +129,16 @@ const Navbar = () => {
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/product/add`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
-      alert("Product added successfully");
+      toast.success("Product added successfully 🎉");
+
       setShowModal(false);
 
       setProduct({
@@ -126,12 +152,14 @@ const Navbar = () => {
 
       navigate("/products");
     } catch (error) {
-      alert(error.response?.data?.message || "Error adding product");
+      toast.error(error.response?.data?.message || "Error adding product ❌");
     }
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
     setUser(null);
     setUserPhoto("");
     setCartCount(0);
@@ -141,99 +169,99 @@ const Navbar = () => {
   return (
     <>
       {/* ================= NAVBAR ================= */}
-      <nav
-        className="fixed top-0 left-0 w-full z-50 
-      bg-gradient-to-r from-zinc-900/80 via-zinc-900/70 to-zinc-900/80 
-      backdrop-blur-2xl border-b border-white/10 
-      shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
-      >
+      <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-zinc-900/80 via-zinc-900/70 to-zinc-900/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4 text-white">
-          {/* LOGO */}
           <h1
             onClick={() => navigate("/")}
-            className="text-2xl sm:text-3xl font-extrabold cursor-pointer tracking-wide"
+            className="text-2xl sm:text-3xl font-extrabold cursor-pointer"
           >
             Shopify<span className="text-yellow-400">X</span>
           </h1>
 
-          {/* MENU */}
-          <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
+          <ul className="hidden md:flex gap-8 text-gray-300">
             <li
               onClick={() => navigate("/")}
-              className="cursor-pointer hover:text-yellow-400 transition"
+              className="cursor-pointer hover:text-yellow-400"
             >
               Home
             </li>
             <li
-              onClick={() => navigate("/products")}
-              className="cursor-pointer hover:text-yellow-400 transition"
+              onClick={() => {
+                navigate("/products");
+              }}
+              className="cursor-pointer hover:text-yellow-400"
             >
               Products
             </li>
           </ul>
 
-          {/* RIGHT SIDE */}
-          <div className="flex items-center gap-5 sm:gap-6">
-            {/* ADD BUTTON */}
+          <div className="flex items-center gap-5">
             {user && (
               <button
                 onClick={() => setShowModal(true)}
-                className="hidden md:block bg-yellow-400 text-black px-5 py-2 rounded-full text-sm font-semibold hover:scale-105 transition shadow-md"
+                className="hidden md:block bg-yellow-400 text-black px-5 py-2 rounded-full"
               >
                 + Add Product
               </button>
             )}
 
-            {/* CART */}
             <div
-              onClick={() => navigate("/cart")}
-              className="relative cursor-pointer group"
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                  toast.error("Login first then see cart");
+                  return;
+                }
+                navigate("/cart");
+              }}
+              className="relative cursor-pointer"
             >
-              <FiShoppingCart className="text-2xl group-hover:text-yellow-400 transition" />
-
+              <FiShoppingCart className="text-2xl" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full font-bold shadow">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">
                   {cartCount}
                 </span>
               )}
             </div>
 
-            {/* USER */}
             <div
-              onClick={() => navigate("/profile")}
-              className="w-10 h-10 rounded-full overflow-hidden bg-white/10 flex items-center justify-center cursor-pointer border border-white/10"
+              onClick={() => {
+                if (!user) {
+                  toast.error("Login first then see profile");
+                  return;
+                }
+                navigate("/profile");
+              }}
+              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer overflow-hidden"
             >
               {user?.profileImage ? (
                 <img
                   src={user.profileImage}
-                  alt="profile"
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <FiUser className="text-lg" />
+                <FiUser />
               )}
             </div>
 
-            {/* LOGIN / LOGOUT */}
             {user ? (
               <button
                 onClick={handleLogout}
-                className="hidden cursor-pointer md:block bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition"
+                className="cursor-pointer hidden md:block bg-white text-black px-4 py-2 rounded-full"
               >
                 Logout
               </button>
             ) : (
               <button
                 onClick={() => navigate("/login")}
-                className="hidden md:block bg-yellow-400 text-black px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition"
+                className="cursor-pointer hidden md:block bg-yellow-400 text-black px-4 py-2 rounded-full"
               >
                 Login
               </button>
             )}
 
-            {/* MOBILE MENU */}
             <button
-              className="md:hidden text-3xl"
+              className="md:hidden text-2xl"
               onClick={() => setSidebar(true)}
             >
               <FiMenu />
@@ -252,62 +280,58 @@ const Navbar = () => {
       />
 
       {/* ================= MODAL ================= */}
+      {/* ================= MODAL ================= */}
       {showModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-3xl p-7 bg-zinc-900 border border-white/10 text-white shadow-2xl animate-scaleIn"
-          >
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="relative z-[10000] bg-zinc-900 p-6 rounded-xl w-full max-w-lg text-white shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Add Product</h2>
+
               <button
                 onClick={() => setShowModal(false)}
-                className="text-white/60 hover:text-red-400 text-xl"
+                className="text-white/70 hover:text-white text-xl"
               >
                 ✕
               </button>
             </div>
 
             {/* Inputs */}
-            <div className="space-y-4">
-              {["name", "description", "price", "category", "stock"].map(
-                (f) => (
-                  <input
-                    key={f}
-                    name={f}
-                    value={product[f]}
-                    onChange={handleChange}
-                    placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-sm outline-none focus:border-yellow-400 transition"
-                  />
-                ),
-              )}
+            {["name", "description", "price", "category", "stock"].map((f) => (
+              <input
+                key={f}
+                name={f}
+                value={product[f]}
+                onChange={handleChange}
+                placeholder={f}
+                className="w-full p-2 mb-3 bg-zinc-800 rounded outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+            ))}
 
-              {/* File Upload */}
-              <div className="border border-dashed border-white/20 rounded-xl p-4 text-center bg-zinc-800/50">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleImageChange}
-                  className="text-xs text-white/70"
-                />
-                <p className="text-[12px] text-white/40 mt-2">
-                  Upload product images
-                </p>
-              </div>
+            {/* File Upload */}
+            <input
+              type="file"
+              multiple
+              onChange={handleImageChange}
+              className="mb-4 w-full text-sm"
+            />
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-1/2 bg-zinc-700 py-2 rounded hover:bg-zinc-600"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleAddProduct}
+                className="w-1/2 bg-yellow-400 text-black py-2 rounded hover:bg-yellow-300"
+              >
+                Save Product
+              </button>
             </div>
-
-            {/* Button */}
-            <button
-              onClick={handleAddProduct}
-              className="w-full mt-6 bg-yellow-400 text-black py-3 rounded-xl font-semibold text-sm hover:scale-[1.02] active:scale-95 transition"
-            >
-              Save Product
-            </button>
           </div>
         </div>
       )}

@@ -12,10 +12,13 @@ const SingleProduct = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
 
   // ================= FETCH PRODUCT =================
   const fetchProduct = async () => {
     try {
+      setLoading(true);
+
       const res = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/product/getSingleProduct/${id}`
       );
@@ -23,10 +26,10 @@ const SingleProduct = () => {
       const data = res.data.product;
       setProduct(data);
 
-      if (data.images?.length > 0) {
+      if (data?.images?.length > 0) {
         setMainImage(data.images[0]);
       } else {
-        setMainImage(data.image);
+        setMainImage(data?.image || "");
       }
     } catch (error) {
       console.log(error);
@@ -36,29 +39,51 @@ const SingleProduct = () => {
     }
   };
 
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
   // ================= ADD TO CART =================
   const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Please login first 🔐");
+      navigate("/login");
+      return;
+    }
+
     try {
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/cart/addCart`,
         { productId: id },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      toast.success("Added to cart ✅");
+      toast.success("Added to cart 🛒");
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
+      console.log(error);
       toast.error("Failed to add to cart ❌");
     }
   };
 
-  useEffect(() => {
-    fetchProduct();
-  }, []);
+  // ================= BUY NOW =================
+  const handleBuyNow = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Please login first 🔐");
+      navigate("/login");
+      return;
+    }
+
+    setShowPayment(true);
+  };
 
   // ================= LOADING =================
   if (loading) {
@@ -90,14 +115,14 @@ const SingleProduct = () => {
 
       <div className="relative min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white overflow-hidden">
 
-        {/* Glow Effects */}
+        {/* Glow */}
         <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 opacity-20 blur-3xl rounded-full"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-500 opacity-20 blur-3xl rounded-full"></div>
 
-        {/* Content */}
+        {/* MAIN CONTENT */}
         <div className="relative max-w-6xl mx-auto px-4 py-24 grid md:grid-cols-2 gap-10 items-center">
 
-          {/* LEFT - IMAGE */}
+          {/* LEFT IMAGE */}
           <div className="flex flex-col items-center">
             <div className="bg-white/10 border border-white/20 p-6 rounded-2xl backdrop-blur-md">
               <img
@@ -107,7 +132,6 @@ const SingleProduct = () => {
               />
             </div>
 
-            {/* thumbnails */}
             <div className="flex gap-3 mt-4 overflow-x-auto">
               {product.images?.map((img, i) => (
                 <img
@@ -125,33 +149,29 @@ const SingleProduct = () => {
             </div>
           </div>
 
-          {/* RIGHT - DETAILS */}
+          {/* RIGHT DETAILS */}
           <div className="text-center md:text-left">
 
-            {/* category */}
             <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-semibold">
               {product.category}
             </span>
 
-            {/* name */}
             <h1 className="text-3xl md:text-5xl font-bold mt-4">
               {product.name}
             </h1>
 
-            {/* description */}
-            <p className="text-gray-300 mt-4 text-sm md:text-base leading-relaxed">
+            <p className="text-gray-300 mt-4 text-sm md:text-base">
               {product.description}
             </p>
 
-            {/* price */}
             <div className="mt-6 text-3xl font-bold text-yellow-400">
               ₹{product.price}
             </div>
 
-            {/* buttons */}
+            {/* BUTTONS */}
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
 
-              {/* Add to Cart */}
+              {/* ADD TO CART */}
               <button
                 onClick={handleAddToCart}
                 className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:scale-105 transition"
@@ -159,22 +179,36 @@ const SingleProduct = () => {
                 Add to Cart
               </button>
 
-              {/* Buy Now (Payment Component) */}
-              <Payment
-                cart={[{ product: product, qty: 1 }]}
-                total={product.price}
-                text="Buy Now"
-                onSuccess={() => {
-                  toast.success("Payment Successful 🎉");
-                  window.dispatchEvent(new Event("cartUpdated"));
-                  navigate("/orders");
-                }}
-              />
+              {/* BUY NOW */}
+              <button
+                onClick={handleBuyNow}
+                className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:scale-105 transition"
+              >
+                Buy Now
+              </button>
 
             </div>
-          </div>
 
+          </div>
         </div>
+
+        {/* ================= PAYMENT MODAL ================= */}
+        {showPayment && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
+            <Payment
+              cart={[{ product: product, qty: 1 }]}
+              total={product.price}
+              text="Pay Now"
+              onSuccess={() => {
+                toast.success("Payment Successful 🎉");
+                window.dispatchEvent(new Event("cartUpdated"));
+                setShowPayment(false);
+                navigate("/orders");
+              }}
+            />
+          </div>
+        )}
+
       </div>
     </>
   );

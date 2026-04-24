@@ -48,15 +48,14 @@ function Login() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/login`,
-        form
+        form,
       );
 
       toast.success(res.data.message);
-
+      localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       navigate("/");
-
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
@@ -72,12 +71,11 @@ function Login() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/forgot-password`,
-        { email }
+        { email },
       );
 
       toast.success(res.data.message);
       setMode("otp");
-
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
@@ -93,12 +91,11 @@ function Login() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/verify-forgot-otp`,
-        { email, otp }
+        { email, otp },
       );
 
       toast.success(res.data.message);
       setMode("reset");
-
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
@@ -114,7 +111,7 @@ function Login() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/reset-password`,
-        { email, newPassword }
+        { email, newPassword },
       );
 
       toast.success(res.data.message);
@@ -123,7 +120,6 @@ function Login() {
       setEmail("");
       setOtp("");
       setNewPassword("");
-
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
@@ -133,11 +129,9 @@ function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black px-4">
-
       <ToastContainer />
 
       <div className="w-full max-w-md backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-2xl p-8">
-
         {/* ================= TITLE ================= */}
         <h2 className="text-3xl font-bold text-center text-white mb-6">
           {mode === "login" && "Welcome Back"}
@@ -149,7 +143,6 @@ function Login() {
         {/* ================= LOGIN ================= */}
         {mode === "login" && (
           <form onSubmit={handleLogin} className="space-y-4">
-
             <input
               name="email"
               placeholder="Email"
@@ -195,7 +188,6 @@ function Login() {
         {/* ================= FORGOT ================= */}
         {mode === "forgot" && (
           <form onSubmit={handleForgot} className="space-y-4">
-
             <input
               placeholder="Enter Email"
               onChange={(e) => setEmail(e.target.value)}
@@ -212,14 +204,12 @@ function Login() {
             >
               Back to Login
             </p>
-
           </form>
         )}
 
         {/* ================= OTP ================= */}
         {mode === "otp" && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
-
             <input
               placeholder="Enter OTP"
               onChange={(e) => setOtp(e.target.value)}
@@ -229,14 +219,12 @@ function Login() {
             <button className="w-full py-3 bg-green-500 text-white rounded-lg">
               {loading.otp ? "Verifying..." : "Verify OTP"}
             </button>
-
           </form>
         )}
 
         {/* ================= RESET ================= */}
         {mode === "reset" && (
           <form onSubmit={handleReset} className="space-y-4">
-
             <input
               type="password"
               placeholder="New Password"
@@ -247,10 +235,8 @@ function Login() {
             <button className="w-full py-3 bg-purple-600 text-white rounded-lg">
               {loading.reset ? "Resetting..." : "Reset Password"}
             </button>
-
           </form>
         )}
-
       </div>
     </div>
   );

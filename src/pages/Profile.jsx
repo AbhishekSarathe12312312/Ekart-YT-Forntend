@@ -26,6 +26,11 @@ const Profile = () => {
 
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
         );
 
         setUser(res.data.user);
@@ -65,7 +70,12 @@ const Profile = () => {
       const res = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
       );
 
       setUser(res.data.user);
